@@ -1,0 +1,5 @@
+
+*.txt
+/game/saves
+*.json
+*.txt
