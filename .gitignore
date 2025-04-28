@@ -134,3 +134,7 @@ CubismSdkForNative-4-*.zip
 /c
 /cg
 /.vscode/launch.json
+game/cache/shaders.txt
+game/saves/navigation.json
+game/saves/persistent
+*.txt
