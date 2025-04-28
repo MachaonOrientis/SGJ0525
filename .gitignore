@@ -6,3 +6,5 @@
 *.txt
 *.json
 /game/saves
+/game/cache
+/game/saves
