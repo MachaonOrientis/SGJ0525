@@ -18,12 +18,12 @@ define config.name = _("sgj525")
 ## Определяет, показывать ли заголовок, данный выше, на экране главного меню.
 ## Установите на False, чтобы спрятать заголовок.
 
-define gui.show_name = True
+define gui.show_name = None
 
 
 ## Версия игры.
 
-define config.version = "1.0"
+define config.version = " "
 
 
 ## Текст, помещённый в экран "Об игре". Поместите текст между тройными скобками.
@@ -121,7 +121,7 @@ define config.window_hide_transition = Dissolve(.2)
 ## в то время как любая другая цифра — это количество символов, печатаемых в
 ## секунду.
 
-default preferences.text_cps = 0
+default preferences.text_cps = 40
 
 
 ## Стандартная задержка авточтения. Большие значения означают долгие ожидания, а
