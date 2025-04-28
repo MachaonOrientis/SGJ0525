@@ -30,3 +30,7 @@ game/gui.rpyc
 *.json
 log.txt
 *.txt
+log.txt
+game/saves/persistent
+game/saves/navigation.json
+game/cache/shaders.txt
