@@ -6,9 +6,38 @@ default player_turns = {1: 0, 2: 0}          # Счётчик ходов каж�
 default attack_cooldowns = {}                 # Формат: {(player, damage): last_used_turn}
 default global_turn = 0
 default cooldown_values = {
-    1: {10: 2, "heal": 3},  # Игрок 1: лечение - 3 хода
-    2: {10: 2, "heal": 3}   # Игрок 2: лечение - 3 хода
+    1: {10: 0, 20: 2, "heal": 3},  # Игрок 1: 10 (без КД), 20 (КД 1), хил 20 (КД 2)
+    2: {10: 0, 20: 2, "heal": 3}   # Игрок 2: 10 (без КД), 20 (КД 1), хил 10 (КД 2)
 }
+
+default player2_sprites = {
+    1: "player2.png",
+    2: "player3.png"
+}
+
+default current_player2_sprites = 2
+
+default player_sets = {
+    "set1": {
+        1: {"health": 40, "heal_power": 10, "cooldowns": {10: 0, 20: 2, "heal": 3}},
+        2: {"health": 30, "heal_power": 10, "cooldowns": {10: 0, 20: 2, "heal": 3}}
+    },
+    "set2": {
+        1: {"health": 50, "heal_power": 20, "cooldowns": {10: 0, 20: 2, "heal": 3}},
+        2: {"health": 30, "heal_power": 10, "cooldowns": {10: 0, 20: 2, "heal": 3}}
+    },
+    "set3": {
+        1: {"health": 60, "heal_power": 20, "cooldowns": {10: 0, 20: 2, "heal": 3}},
+        2: {"health": 30, "heal_power": 10, "cooldowns": {10: 0, 20: 2, "heal": 3}}
+    },
+    "set4": {
+        1: {"health": 70, "heal_power": 20, "cooldowns": {10: 0, 20: 2, "heal": 0}},
+        2: {"health": 50, "heal_power": 20, "cooldowns": {10: 0, 20: 2, "heal": 0}}
+    }
+}
+
+default current_player_set = "set4"
+
 
 style cooldown_text:
     size 24
@@ -99,10 +128,10 @@ screen player1():
 
 
         # Изображение
-        add "player1.jpg":
-            zoom 0.3
+        add player2_sprites[current_player2_sprites]:
+            zoom 0.4
             xcenter 0.6  
-            ycenter 0.75
+            ycenter 0.73
 
 screen player2():
     fixed:
@@ -112,15 +141,13 @@ screen player2():
 
         # Изображение
         add "player1.jpg":
-            zoom 0.3
+            zoom 0.4
             xcenter 0.4  
-            ycenter 0.75
+            ycenter 0.73
 
 init python:
     def update_cooldown(player, damage):
-        # Обновляем КД только для атак с КД > 0
-        if damage in store.cooldown_values.get(player, {}):
-            store.attack_cooldowns[(player, damage)] = store.player_turns[player]
+        store.attack_cooldowns[(player, damage)] = store.global_turn
 
 transform slide_from_left(delay=0.0): 
     xysize(300,100)
@@ -149,7 +176,7 @@ screen bottom_left_buttons:
         # Вертикальный контейнер для кнопок (снизу вверх)
         vbox:
             spacing 1
-            # Кнопка 5 урона (без КД)
+            # Кнопка 1
             fixed:
                 xysize (300, 100)
                 imagebutton:
@@ -159,11 +186,18 @@ screen bottom_left_buttons:
                     at slide_from_left
                     sensitive True  # Всегда активна
                     action [
-                        SetVariable("selected_damage", 5),
+                        SetVariable("selected_damage", 10),
                         Return("attack")
                     ]
+                # Текст для кнопки 1
+                text "Урон 10":
+                    at show_with_delay
+                    xalign 0.5
+                    yalign 0.5
+                    style "cooldown_text"
+                    color "#ffffff"
 
-            # Кнопка 10 урона
+            # Кнопка 2
             fixed:
                 xysize (300, 100)
                 imagebutton:
@@ -172,23 +206,23 @@ screen bottom_left_buttons:
                     xpos -400
                     at slide_from_left(0.3)
                     sensitive ( 
-                        (store.player_turns[current_player] - 
-                        store.attack_cooldowns.get((current_player, 10), -2)) >= 
-                        cooldown_values[current_player].get(10, 0)
+                        (store.global_turn - store.attack_cooldowns.get((current_player, 20), -999)) 
+                        > cooldown_values[current_player].get(20, 0)
                     )
                     action [
-                        SetVariable("selected_damage", 10),
-                        Function(update_cooldown, current_player, 10),
+                        SetVariable("selected_damage", 20),
+                        Function(update_cooldown, current_player, 20),
                         Return("attack")
                     ]
-                # Текст перезарядки только если КД > 0
-                if cooldown_values[current_player].get(10, 0) > 0:
-                    text "[max(0, cooldown_values[current_player][10] - (player_turns[current_player] - attack_cooldowns.get((current_player, 10), -2)))]":
-                        at show_with_delay
-                        style "cooldown_text"
-                        xalign 0.5
-                        yalign 0.5
+                # Текст для кнопки 2
+                text "Урон 20":
+                    at show_with_delay
+                    xalign 0.5
+                    yalign 0.5
+                    style "cooldown_text"
+                    color "#ffffff"
 
+            # Кнопка 3
             fixed:
                 xysize (300, 100)
                 imagebutton:
@@ -197,18 +231,19 @@ screen bottom_left_buttons:
                     xpos -400
                     at slide_from_left(0.6)
                     sensitive ( 
-                        (store.player_turns[current_player] - 
-                        store.attack_cooldowns.get((current_player, "heal"), -2)) >= 
-                        cooldown_values[current_player].get("heal", 0)
+                        (store.global_turn - store.attack_cooldowns.get((current_player, "heal"), -999)) 
+                        >= cooldown_values[current_player].get("heal", 0)
                     )
                     action [
                         SetVariable("selected_damage", "heal"),  # Меняем тип действия
                         Function(update_cooldown, current_player, "heal"),
                         Return("attack")
                     ]
-                if cooldown_values[current_player].get("heal", 0) > 0:
-                    text "[max(0, cooldown_values[current_player]['heal'] - (player_turns[current_player] - attack_cooldowns.get((current_player, 'heal'), -2)))]":
-                        at show_with_delay
-                        style "cooldown_text"
-                        xalign 0.5
-                        yalign 0.5
+                # Текст для кнопки 3 с динамическим значением
+                text "Хил [heal_power[current_player]]":
+                    at show_with_delay
+                    xalign 0.5
+                    yalign 0.5
+                    style "cooldown_text"
+                    color "#ffffff"
+
