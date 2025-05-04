@@ -15,7 +15,6 @@ default player2_sprites = {
     2: "player3.png"
 }
 
-default current_player2_sprites = 2
 
 default player_sets = {
     "set1": {

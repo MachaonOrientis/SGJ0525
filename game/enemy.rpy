@@ -20,21 +20,23 @@ init python:
             self.heal_cooldown = 3
             self.enhanced_attack_multiplier = 2
 
-default win_lose = False
+default fight2 = False
+default next_label = None
+
 
 default enemies_sets = {
     "first_pack": [
-        Enemy("First_Boss", 40, "first_boss.png", 300, (8,10), sway, False, False)
+        Enemy("First_Boss", 60, "first_boss.png", 300, (8,10), sway, False, False)
     ],
     "bandit_pack": [
         Enemy("Bandit", 35, "bandit.png", 250, (8,10), sway, False, False),
         Enemy("Bandit", 35, "bandit.png", 500, (9,11), sway, False, False)
     ],
     "monk_pack": [
-        Enemy("Monk", 65, "monk.png", 300, (18,20), sway, False, True)
+        Enemy("Monk", 95, "monk.png", 300, (18,20), sway, False, True)
     ],
     "boss_pack": [
-        Enemy("Boss", 60, "first_boss.png", 300, (13,15), sway, True, False)
+        Enemy("Boss", 80, "first_boss.png", 300, (13,15), sway, True, False)
     ]
 }
 
@@ -47,7 +49,7 @@ default bg_music = {
     "boss_pack": "audio/music4.wav"
 }
 
-image bg forest = "bg.png"
+image bg forest = "fon7-bg.png"
 
 screen enemy_heal(text,x_pos):
     zorder 100
@@ -377,11 +379,27 @@ label test:
 label battle_lost:
     stop music fadeout 1.0
     "Ваша команда пала в бою!"
-    $ win_lose = False
+    $ fight2 = False
+    hide screen health1
+    hide screen health2
+    hide screen display_enemies
+    hide screen player1
+    hide screen player2
+    hide screen display_enemies
+    $ renpy.music.stop(channel="bg_music", fadeout=1.0)
+    $ renpy.jump(next_label)
     return
 
 label battle_won:
     stop music fadeout 1.0
     "Все враги повержены!"
-    $ win_lose = True
+    $ fight2 = True
+    hide screen health1
+    hide screen health2
+    hide screen display_enemies
+    hide screen player1
+    hide screen player2
+    hide screen display_enemies
+    $ renpy.music.stop(channel="bg_music", fadeout=1.0)
+    $ renpy.jump(next_label)
     return
